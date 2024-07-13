@@ -1,9 +1,8 @@
 .env*
 deploy_settings.yaml
 backend-chalice/chalicelib/common_modules/config.py
+backend-chalice/.chalice/
 
-/backend-chalice/.chalice/deployments/
-/backend-chalice/.chalice/deployed/
 *.pyc
 dist/
 node_modules/
