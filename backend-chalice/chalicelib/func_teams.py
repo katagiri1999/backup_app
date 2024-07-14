@@ -67,16 +67,22 @@ def get(params: dict, db_client=None) -> dict:
         users = func_users.get_users(user_id)
         team_ids = [i[const.team_id] for i in users]
 
-        result = db_client.scan(
-            FilterExpression=Attr(const.team_id).is_in(team_ids)
-        )
-        rows: list[dict] = result.get("Items", [])
-        rows = [Team(**i).to_dict() for i in rows]
+        if len(team_ids) == 0:
+            return {const.contents: []}
 
-        if team_id:
-            rows = [i for i in rows if i[const.team_id] == team_id]
         else:
-            rows = sorted(rows, key=lambda x: x[const.team_name])
+            result = db_client.scan(
+                FilterExpression=Attr(const.team_id).is_in(team_ids)
+            )
+            rows: list[dict] = result.get("Items", [])
+            rows = [Team(**i).to_dict() for i in rows]
+
+            if len(rows) == 0:
+                rows = []
+            elif team_id:
+                rows = [i for i in rows if i[const.team_id] == team_id]
+            else:
+                rows = sorted(rows, key=lambda x: x[const.team_name])
 
         return {const.contents: rows}
 
