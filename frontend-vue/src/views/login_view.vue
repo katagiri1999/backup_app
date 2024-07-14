@@ -36,7 +36,7 @@
 </style>
 
 <script>
-import header_component from "..//components/header_component.vue"
+import header_component from "..//components/header_component.vue";
 import common_func_component from "../components/common_func_component.vue";
 import VueElementLoading from "vue-element-loading";
 
