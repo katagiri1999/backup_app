@@ -28,7 +28,7 @@ class User:
                 errors.append(const.role)
 
             if self.role:
-                if self.status not in [const.admin, const.normal]:
+                if self.role not in [const.admin, const.normal]:
                     errors.append("role format")
 
             if len(errors) > 0:

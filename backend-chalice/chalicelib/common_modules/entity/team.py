@@ -4,7 +4,7 @@ from chalicelib.common_modules.const import const
 
 
 @dataclasses.dataclass
-class User:
+class Team:
     team_id: str = None
     team_name: str = None
 
