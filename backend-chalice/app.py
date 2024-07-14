@@ -3,7 +3,8 @@ import json
 from chalice import Chalice
 from chalice.app import Request, Response
 
-from chalicelib import func_login, func_refresh, func_tasks
+from chalicelib import (func_login, func_refresh, func_tasks, func_teams,
+                        func_users)
 from chalicelib.common_modules.const import const
 
 app = Chalice(app_name='back-app-main')
@@ -58,4 +59,18 @@ def session_api_handler():
 def contents_api_handler():
     params = http_request_handler(app.current_request)
     res = func_tasks.main(params)
+    return http_response_handler(res)
+
+
+@app.route("/teams", methods=[const.GET, const.POST, const.PUT, const.DELETE], content_types=[const.application_json], cors=True)
+def contents_api_handler():
+    params = http_request_handler(app.current_request)
+    res = func_teams.main(params)
+    return http_response_handler(res)
+
+
+@app.route("/users", methods=[const.GET, const.POST, const.PUT, const.DELETE], content_types=[const.application_json], cors=True)
+def contents_api_handler():
+    params = http_request_handler(app.current_request)
+    res = func_users.main(params)
     return http_response_handler(res)

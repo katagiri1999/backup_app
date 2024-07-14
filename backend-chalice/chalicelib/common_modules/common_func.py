@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 
 import boto3
 import jwt
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Attr, Key
 from mypy_boto3_dynamodb import DynamoDBServiceResource
 
 from chalicelib.common_modules import config
@@ -66,11 +66,12 @@ def jwt_key() -> str:
         raise e
 
 
-def generate_jwt(user_id: str, team_id: str = "") -> str:
+def generate_jwt(user_id: str, team_id: str = "", role: str = "") -> str:
     try:
         claim = {
             const.user_id: user_id,
             const.team_id: team_id,
+            const.role: role,
             const.iss: config.APP_URL,
             const.aud: config.APP_URL,
             const.iat: int(time.time()),
@@ -144,7 +145,19 @@ def dynamodb_client(table_name):
 
 
 def get_dynamodb_key() -> Key:
-    return Key
+    try:
+        return Key
+
+    except Exception as e:
+        raise e
+
+
+def get_dynamodb_attr() -> Attr:
+    try:
+        return Attr
+
+    except Exception as e:
+        raise e
 
 
 def send_mail(title: str, text: str, dest: str) -> None:

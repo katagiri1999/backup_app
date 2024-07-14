@@ -1,80 +1,15 @@
-import json
+from test.common import id_token, id_token_no_admin, id_token_no_team, printer
 
 import pytest
 
-from chalicelib import func_login, func_refresh, func_tasks
-from chalicelib.common_modules import common_func
+import test_config
+from chalicelib import func_tasks
 from chalicelib.common_modules.const import const
 
-WHITE = "\033[39m"
-RED = "\033[32m"
-USER_ID = "test@gmail.com"
-TEAM_ID = "test_team"
-
-def printer(x):
-    res = json.dumps(x, indent=2, ensure_ascii=False)
-    print(res)
-
-
-@pytest.fixture()
-def id_token():
-    return common_func.generate_jwt(USER_ID, TEAM_ID)
-
-
-@pytest.fixture()
-def id_token_no_team():
-    return common_func.generate_jwt(USER_ID, "")
-
-
-def test_login_error1():
-    print(f"\n{RED}--- invalid code ---{WHITE}")
-    code = "aaa"
-    params = {
-        const.headers: {const.Content_Type: const.application_json},
-        const.body: {const.authorization_code: code},
-    }
-    res = func_login.main(params)
-    printer(res)
-    assert res["status_code"] == 401
-
-
-def test_refresh1(id_token):
-    print(f"\n{RED}--- refresh ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: id_token,
-        }
-    }
-    res = func_refresh.main(params)
-    printer(res)
-    assert res["status_code"] == 200
-
-
-def test_refresh_error1():
-    print(f"\n{RED}--- refresh (invalid token) ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: "hogehoge",
-        }
-    }
-    res = func_refresh.main(params)
-    printer(res)
-    assert res["status_code"] == 401
-
-
-def test_refresh_error2():
-    print(f"\n{RED}--- refresh (no token) ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: "",
-        }
-    }
-    res = func_refresh.main(params)
-    printer(res)
-    assert res["status_code"] == 401
+WHITE = test_config.WHITE
+RED = test_config.RED
+USER_ID = test_config.USER_ID
+TEAM_ID = test_config.TEAM_ID
 
 
 def test_tasks_get1(id_token):
@@ -134,7 +69,7 @@ def test_tasks_get_error3(id_token_no_team):
     }
     res = func_tasks.main(params)
     printer(res)
-    assert res["status_code"] == 400
+    assert res["status_code"] == 403
 
 
 def test_tasks_post1(id_token):
@@ -202,26 +137,10 @@ def test_tasks_put1(id_token):
             const.Content_Type: const.application_json,
             const.authorization: id_token,
         },
-        const.method: const.POST,
-        const.query_params: {const.task_id: task_id},
-        const.body: {
-            const.task: "test_task2",
-            const.memo: "memomemo",
-            const.status: const.Finished,
-            const.limit: "2022/02/02"
-        }
-    }
-    task_id = func_tasks.main(params)[const.body][const.task_id]
-
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: id_token,
-        },
         const.method: const.PUT,
         const.query_params: {const.task_id: task_id},
         const.body: {
-            const.task: "test_task3",
+            const.task: "test_task2",
             const.memo: "memomemomemomemo2",
             const.status: const.Processing,
             const.limit: "2022/02/02"

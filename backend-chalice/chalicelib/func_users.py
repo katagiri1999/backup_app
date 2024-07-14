@@ -1,9 +1,8 @@
 import copy
-import uuid
 
 from chalicelib.common_modules import common_func
 from chalicelib.common_modules.const import const
-from chalicelib.common_modules.entity.task import Task
+from chalicelib.common_modules.entity.user import User
 
 
 def main(params: dict) -> dict:
@@ -16,25 +15,33 @@ def main(params: dict) -> dict:
 
         payload = common_func.decode_id_token(id_token)
 
-        if not payload.get(const.team_id):
+        if not payload.get(const.team_id) or not payload.get(const.role):
             err_params = {
-                const.exception: f"no permissions: no {const.team_id}",
+                const.exception: f"no permissions: no {const.team_id} or {const.role}",
                 const.status_code: 403,
             }
             raise Exception(err_params)
 
         user_id = payload[const.user_id]
         team_id = payload[const.team_id]
+        role = payload[const.role]
 
         params.update({
             const.user_id: user_id,
             const.team_id: team_id,
+            const.role: role,
         })
 
         res = None
         status_code = 200
 
         method = params[const.method]
+        if method in [const.POST, const.PUT, const.DELETE] and role != const.admin:
+            err_params = {
+                const.exception: f"no permissions: not {const.admin}",
+                const.status_code: 403,
+            }
+            raise Exception(err_params)
 
         if method == const.GET:
             res = get(params)
@@ -54,28 +61,28 @@ def main(params: dict) -> dict:
 def get(params: dict, db_client=None) -> dict:
     try:
         query_params: dict = params[const.query_params]
-        task_id: str = query_params.get(const.task_id)
+        user_id: str = query_params.get(const.user_id)
         team_id: str = params[const.team_id]
 
         if not db_client:
-            db_client = common_func.dynamodb_client(const.tasks_backapp)
+            db_client = common_func.dynamodb_client(const.users_backapp)
 
         Key = common_func.get_dynamodb_key()
 
-        if task_id:
+        if user_id:
             result = db_client.query(
-                KeyConditionExpression=Key(const.team_id).eq(team_id) & Key(const.task_id).eq(task_id)
+                KeyConditionExpression=Key(const.team_id).eq(team_id) & Key(const.user_id).eq(user_id)
             )
             rows: list[dict] = result.get("Items", [])
 
         else:
-            result: dict = db_client.query(
+            result = db_client.query(
                 KeyConditionExpression=Key(const.team_id).eq(team_id)
             )
             rows: list[dict] = result.get("Items", [])
 
-        rows = [Task(**i).to_dict() for i in rows]
-        rows = sorted(rows, key=lambda x: x[const.limit])
+        rows = [User(**i).to_dict() for i in rows]
+        rows = sorted(rows, key=lambda x: x[const.user_id])
 
         return {const.contents: rows}
 
@@ -86,18 +93,27 @@ def get(params: dict, db_client=None) -> dict:
 def post(params: dict) -> dict:
     try:
         body: dict = params[const.body]
-        content = Task(
-            task_id=str(uuid.uuid4()),
-            team_id=params[const.team_id],
-            user_id=params[const.user_id],
-            task=body.get(const.task),
-            memo=body.get(const.memo),
-            status=body.get(const.status),
-            limit=body.get(const.limit),
+        team_id: str = params[const.team_id]
+        content = User(
+            user_id=body.get(const.user_id),
+            team_id=team_id,
+            role=body.get(const.role),
         )
         content.validation()
 
-        db_client = common_func.dynamodb_client(const.tasks_backapp)
+        db_client = common_func.dynamodb_client(const.users_backapp)
+
+        r_params = copy.deepcopy(params)
+        r_params.update({const.query_params: {const.user_id: content.user_id}})
+        row = get(r_params, db_client)
+
+        if len(row[const.contents]) > 0:
+            err_params = {
+                const.exception: f"duplicated {const.user_id}",
+                const.status_code: 409,
+            }
+            raise Exception(err_params)
+
         db_client.put_item(Item=content.to_dict())
 
         return content.to_dict()
@@ -110,51 +126,42 @@ def put(params: dict) -> dict:
     try:
         body: dict = params[const.body]
         query_params: dict = params[const.query_params]
+        team_id: str = params[const.team_id]
 
-        if not query_params.get(const.task_id):
+        if not query_params.get(const.user_id):
             err_params = {
-                const.exception: f"not provide {const.task_id}",
+                const.exception: f"not provide {const.user_id}",
                 const.status_code: 400,
             }
             raise Exception(err_params)
 
-        content = Task(
-            task_id=query_params[const.task_id],
-            team_id=params[const.team_id],
-            user_id=params[const.user_id],
-            task=body.get(const.task),
-            memo=body.get(const.memo),
-            status=body.get(const.status),
-            limit=body.get(const.limit),
+        content = User(
+            user_id=query_params[const.user_id],
+            team_id=team_id,
+            role=body.get(const.role),
         )
         content.validation()
 
-        db_client = common_func.dynamodb_client(const.tasks_backapp)
+        db_client = common_func.dynamodb_client(const.users_backapp)
 
         r_params = copy.deepcopy(params)
         row = get(r_params, db_client)
 
         if len(row[const.contents]) == 0:
             err_params = {
-                const.exception: f"not found {content.task_id}",
+                const.exception: f"not found {content.user_id}",
                 const.status_code: 404,
             }
             raise Exception(err_params)
 
         db_client.update_item(
-            Key={const.task_id: content.task_id, const.team_id: content.team_id},
-            UpdateExpression='set #task = :task, #memo = :memo, #status = :status, #limit = :limit',
+            Key={const.user_id: content.user_id, const.team_id: content.team_id},
+            UpdateExpression='set #role = :role',
             ExpressionAttributeNames={
-                '#task': 'task',
-                '#memo': 'memo',
-                '#status': 'status',
-                '#limit': 'limit',
+                '#role': 'role',
             },
             ExpressionAttributeValues={
-                ':task': content.task,
-                ':memo': content.memo,
-                ':status': content.status,
-                ':limit': content.limit,
+                ':role': content.role,
             }
         )
 
@@ -167,41 +174,57 @@ def put(params: dict) -> dict:
 def delete(params: dict) -> dict:
     try:
         query_params: dict = params[const.query_params]
+        team_id: str = params[const.team_id]
 
-        if not query_params.get(const.task_id):
+        if not query_params.get(const.user_id):
             err_params = {
-                const.exception: f"not provide {const.task_id}",
+                const.exception: f"not provide {const.user_id}",
                 const.status_code: 400,
             }
             raise Exception(err_params)
 
-        content = Task(
-            task_id=query_params[const.task_id],
-            team_id=params[const.team_id],
-            user_id=params[const.user_id],
+        content = User(
+            user_id=query_params[const.user_id],
+            team_id=team_id,
         )
 
-        db_client = common_func.dynamodb_client(const.tasks_backapp)
+        db_client = common_func.dynamodb_client(const.users_backapp)
 
         r_params = copy.deepcopy(params)
-        r_params[const.query_params].update({const.task_id: content.task_id})
         row = get(r_params, db_client)
 
         if len(row[const.contents]) == 0:
             err_params = {
-                const.exception: f"not found {content.task_id}",
+                const.exception: f"not found {content.user_id}",
                 const.status_code: 404,
             }
             raise Exception(err_params)
 
-        db_client.delete_item(Key={const.task_id: content.task_id, const.team_id: content.team_id})
+        db_client.delete_item(Key={const.team_id: content.team_id, const.user_id: content.user_id})
 
         pre_content = row[const.contents][0]
-        content.task = pre_content[const.task]
-        content.memo = pre_content[const.memo]
-        content.status = pre_content[const.status]
-        content.limit = pre_content[const.limit]
+        content.role = pre_content[const.role]
         return content.to_dict()
+
+    except Exception as e:
+        raise e
+
+
+def get_users(user_id: str, user_db_client=None) -> list[dict]:
+    try:
+        Key = common_func.get_dynamodb_key()
+
+        if not user_db_client:
+            user_db_client = common_func.dynamodb_client(const.users_backapp)
+
+        result = user_db_client.query(
+            IndexName="user_id-index",
+            KeyConditionExpression=Key(const.user_id).eq(user_id)
+        )
+
+        rows: list[dict] = result.get("Items", [])
+        rows = [User(**i).to_dict() for i in rows]
+        return rows
 
     except Exception as e:
         raise e

@@ -2,6 +2,7 @@ from urllib import parse
 
 import requests
 
+from chalicelib import func_users
 from chalicelib.common_modules import common_func, config
 from chalicelib.common_modules.const import const
 
@@ -22,7 +23,8 @@ def main(params: dict) -> dict:
         authorization_code = parse.unquote(authorization_code)
 
         user_id = code_to_email(authorization_code)
-        id_token = common_func.generate_jwt(user_id, "")
+
+        id_token = common_func.generate_jwt(user_id, "", "")
 
         res = {
             const.id_token: id_token,
