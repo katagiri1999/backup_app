@@ -73,7 +73,6 @@ export default {
 
         sessionStorage.setItem("token", res.id_token);
         sessionStorage.setItem("user_id", res.email);
-        this.update_session_expiration();
 
         this.loading = false;
         this.$router.push("/tasks");

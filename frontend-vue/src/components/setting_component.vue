@@ -21,10 +21,6 @@
                                 <td>{{ user_id }}</td>
                             </tr>
                             <tr>
-                                <td scope="row">Session Expiration:</td>
-                                <td>{{ session_expiration }}</td>
-                            </tr>
-                            <tr>
                                 <td scope="row">API Version:</td>
                                 <td>{{ api_base }}</td>
                             </tr>
@@ -44,7 +40,6 @@ export default {
     data() {
         return {
             user_id: sessionStorage.getItem("user_id"),
-            session_expiration: this.update_session_expiration(),
             api_base: process.env.VUE_APP_API_BASE.split("/").slice(-1)[0],
         }
     }
