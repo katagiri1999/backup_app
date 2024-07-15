@@ -2,7 +2,6 @@ from urllib import parse
 
 import requests
 
-from chalicelib import func_users
 from chalicelib.common_modules import common_func, config
 from chalicelib.common_modules.const import const
 
@@ -11,6 +10,7 @@ def main(params: dict) -> dict:
     try:
         body: dict = params[const.body]
         authorization_code: str = body.get(const.authorization_code)
+        is_local: bool = body.get("local")
 
         if not authorization_code:
             err_params = {
@@ -22,7 +22,7 @@ def main(params: dict) -> dict:
         # url decode
         authorization_code = parse.unquote(authorization_code)
 
-        user_id = code_to_email(authorization_code)
+        user_id = code_to_email(authorization_code, is_local)
 
         id_token = common_func.generate_jwt(user_id, "", "")
 
@@ -37,7 +37,7 @@ def main(params: dict) -> dict:
         return common_func.error_handler(e)
 
 
-def code_to_email(authorization_code: str) -> str:
+def code_to_email(authorization_code: str, is_local: bool) -> str:
     try:
         TOKEN_ENDPOINT = "https://accounts.google.com/o/oauth2/token"
         USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo"
@@ -48,6 +48,12 @@ def code_to_email(authorization_code: str) -> str:
             const.client_secret: config.GCP_CLIENT_SECRET,
             const.redirect_uri: config.APP_URL,
         }
+
+        if is_local:
+            data.update({
+                const.redirect_uri: config.LOCAL_APP_URL
+            })
+
         res1 = requests.post(url=TOKEN_ENDPOINT, data=data)
 
         if res1.status_code != 200:
