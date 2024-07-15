@@ -82,8 +82,8 @@ def test_tasks_post1(id_token):
         const.method: const.POST,
         const.query_params: {},
         const.body: {
-            const.task: "test_task",
-            const.detail: "detail",
+            const.task: "temp_task",
+            const.detail: "temp",
             const.user_id: "temp_user@gmail.com",
             const.status: const.Finished,
             const.limit: "2022-02-02"
@@ -126,8 +126,8 @@ def test_tasks_put1(id_token):
         const.method: const.POST,
         const.query_params: {},
         const.body: {
-            const.task: "test_task",
-            const.detail: "memomemo",
+            const.task: "temp_task",
+            const.detail: "temp",
             const.user_id: "temp_user1@gmail.com",
             const.status: const.Finished,
             const.limit: "2022-02-02"
@@ -143,8 +143,8 @@ def test_tasks_put1(id_token):
         const.method: const.PUT,
         const.query_params: {const.task_id: task_id},
         const.body: {
-            const.task: "test_task2",
-            const.detail: "memomemomemomemo2",
+            const.task: "temp_task2",
+            const.detail: "temp2",
             const.user_id: "temp_user2@gmail.com",
             const.status: const.Processing,
             const.limit: "2022-02-02"
@@ -231,8 +231,8 @@ def test_tasks_delete1(id_token):
         const.method: const.POST,
         const.query_params: {},
         const.body: {
-            const.task: "test_task",
-            const.detail: "memomemo",
+            const.task: "temp_task",
+            const.detail: "temp",
             const.user_id: "temp_user@gmail.com",
             const.status: const.Finished,
             const.limit: "2022-02-02"
