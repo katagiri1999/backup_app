@@ -143,16 +143,18 @@ def put(params: dict) -> dict:
 
         db_client.update_item(
             Key={const.task_id: content.task_id, const.team_id: content.team_id},
-            UpdateExpression='set #task = :task, #detail = :detail, #status = :status, #limit = :limit',
+            UpdateExpression='set #task = :task, #detail = :detail, #user_id = :user_id, #status = :status, #limit = :limit',
             ExpressionAttributeNames={
                 '#task': 'task',
                 '#detail': 'detail',
+                '#user_id': 'user_id',
                 '#status': 'status',
                 '#limit': 'limit',
             },
             ExpressionAttributeValues={
                 ':task': content.task,
                 ':detail': content.detail,
+                ':user_id': content.user_id,
                 ':status': content.status,
                 ':limit': content.limit,
             }
