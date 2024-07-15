@@ -65,9 +65,11 @@
                         <label>Limit:</label>
                     </div>
                     <div class="error">
-                        <div class="alert alert-danger" :hidden=!modal_error_show>
-                            <b>⚠{{ this.modal_error }}</b>
-                        </div>
+                        <template v-if="modal_error">
+                            <div class="alert alert-danger">
+                                <b>⚠{{ this.modal_error }}</b>
+                            </div>
+                        </template>
                     </div>
                     <svg @click="call_contents_api" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
@@ -180,7 +182,6 @@ export default {
             },
             modal_title: "",
             modal_error: "",
-            modal_error_show: false,
             table_headers: [
                 { text: "TASK_ID", value: "task_id" },
                 { text: "TASK", value: "task", sortable: true },
@@ -202,7 +203,6 @@ export default {
     methods: {
         async open_modal(kind, item = {}) {
             this.modal_error = "";
-            this.modal_error_show = false;
 
             if (kind == "post") {
                 this.modal_title = MODAL_TITLE_POST;
@@ -264,7 +264,6 @@ export default {
         async call_contents_api() {
             if (!this.modal_value.task || !this.modal_value.detail || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
                 this.modal_error = "Can not empty";
-                this.modal_error_show = true;
                 throw Error("Can not empty");
             }
 
