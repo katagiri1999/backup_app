@@ -244,8 +244,6 @@ export default {
             }
         },
         async get_contents() {
-            this.loading = true;
-
             var res = await this.common_requests(
                 `${process.env.VUE_APP_API_BASE}/tasks`,
                 "GET",
@@ -253,11 +251,8 @@ export default {
             );
 
             this.table_items = res.contents;
-            this.loading = false;
         },
         async get_teams() {
-            this.loading = true;
-
             var res = await this.common_requests(
                 `${process.env.VUE_APP_API_BASE}/teams`,
                 "GET",
@@ -265,7 +260,6 @@ export default {
             );
 
             this.teams = res.contents;
-            this.loading = false;
         },
         async call_contents_api() {
             if (!this.modal_value.task || !this.modal_value.detail || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
@@ -315,8 +309,8 @@ export default {
                 params,
             );
 
+            await this.get_contents();
             this.loading = false;
-            this.get_contents();
         },
         async first() {
             this.loading = true;
@@ -351,7 +345,8 @@ export default {
             var token = res.id_token;
             sessionStorage.setItem("token", token);
 
-            this.get_contents();
+            await this.get_contents();
+            this.loading = false;
         },
     }
 }
