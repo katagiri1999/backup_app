@@ -167,6 +167,7 @@ export default {
                 if (header.value === 'task_id') return 'task_id_column';
                 return '';
             },
+            self_user_id: sessionStorage.getItem("user_id"),
             loading: false,
             teams: [],
             modal_value: {
@@ -245,10 +246,25 @@ export default {
         async get_contents() {
             this.loading = true;
 
-            var headers = this.common_headers();
-            var res = await this.common_requests(`${process.env.VUE_APP_API_BASE}/tasks`, "GET", headers);
+            var res = await this.common_requests(
+                `${process.env.VUE_APP_API_BASE}/tasks`,
+                "GET",
+                this.common_headers()
+            );
 
             this.table_items = res.contents;
+            this.loading = false;
+        },
+        async get_teams() {
+            this.loading = true;
+
+            var res = await this.common_requests(
+                `${process.env.VUE_APP_API_BASE}/teams`,
+                "GET",
+                this.common_headers()
+            );
+
+            this.teams = res.contents;
             this.loading = false;
         },
         async call_contents_api() {
@@ -292,11 +308,10 @@ export default {
 
             this.loading = true;
             document.getElementById('modal_close1').click();
-            var headers = this.common_headers();
             await this.common_requests(
                 api_url,
                 api_method,
-                headers,
+                this.common_headers(),
                 params,
             );
 
@@ -306,39 +321,32 @@ export default {
         async first() {
             this.loading = true;
 
-            var headers = this.common_headers();
-            var res = await this.common_requests(
-                `${process.env.VUE_APP_API_BASE}/teams`,
-                "GET",
-                headers,
-            );
-            this.teams = res.contents;
+            await this.get_teams();
 
-            if (this.teams.length == 0) {
-                res = await this.common_requests(
+            var self_team_id = "";
+            for(let team of this.teams) {
+                if (team.team_name == this.self_user_id) {
+                    self_team_id = team.team_id;
+                }
+            }
+
+            if (!self_team_id) {
+                var res = await this.common_requests(
                     `${process.env.VUE_APP_API_BASE}/teams`,
                     "POST",
-                    headers,
-                    { team_name: sessionStorage.getItem("user_id") },
+                    this.common_headers(),
+                    { team_name: this.self_user_id },
                 );
-
-                res = await this.common_requests(
-                    `${process.env.VUE_APP_API_BASE}/refresh`,
-                    "POST",
-                    headers,
-                    { team_id: res.team_id },
-                );
-
-            } else {
-
-                headers = this.common_headers();
-                res = await this.common_requests(
-                    `${process.env.VUE_APP_API_BASE}/refresh`,
-                    "POST",
-                    headers,
-                    { team_id: this.teams[0].team_id }
-                );
+                self_team_id = res.team_id;
+                this.teams = [res];
             }
+
+            res = await this.common_requests(
+                `${process.env.VUE_APP_API_BASE}/refresh`,
+                "POST",
+                this.common_headers(),
+                { team_id: self_team_id }
+            );
 
             var token = res.id_token;
             sessionStorage.setItem("token", token);
