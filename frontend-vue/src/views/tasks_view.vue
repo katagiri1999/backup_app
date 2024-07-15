@@ -42,8 +42,8 @@
                     </div>
                     <br>
                     <div class="form-floating">
-                        <textarea class="form-control" v-model="modal_value.memo" id="modal_memo"></textarea>
-                        <label>Memo:</label>
+                        <textarea class="form-control" v-model="modal_value.detail" id="modal_detail"></textarea>
+                        <label>Detail:</label>
                     </div>
                     <br>
                     <div class="form-floating">
@@ -172,7 +172,7 @@ export default {
             modal_value: {
                 task_id: "",
                 task: "",
-                memo: "",
+                detail: "",
                 user: "",
                 status: "",
                 limit: "",
@@ -183,7 +183,7 @@ export default {
             table_headers: [
                 { text: "TASK_ID", value: "task_id" },
                 { text: "TASK", value: "task", sortable: true },
-                { text: "MEMO", value: "memo", sortable: true },
+                { text: "DETAIL", value: "detail", sortable: true },
                 { text: "USER", value: "user_id", sortable: true },
                 { text: "STATUS", value: "status", sortable: true },
                 { text: "LIMIT", value: "limit", sortable: true },
@@ -206,12 +206,12 @@ export default {
             if (kind == "post") {
                 this.modal_title = MODAL_TITLE_POST;
                 this.modal_value.task = "";
-                this.modal_value.memo = "";
+                this.modal_value.detail = "";
                 this.modal_value.user = "";
                 this.modal_value.status = "";
                 this.modal_value.limit = "";
                 document.getElementById("modal_task").disabled = false;
-                document.getElementById("modal_memo").disabled = false;
+                document.getElementById("modal_detail").disabled = false;
                 document.getElementById("modal_user").disabled = false;
                 document.getElementById("modal_status").disabled = false;
                 document.getElementById("modal_limit").disabled = false;
@@ -219,7 +219,7 @@ export default {
             } else {
                 this.modal_value.task_id = item.task_id;
                 this.modal_value.task = item.task;
-                this.modal_value.memo = item.memo;
+                this.modal_value.detail = item.detail;
                 this.modal_value.user = item.user_id;
                 this.modal_value.status = item.status;
                 this.modal_value.limit = item.limit;
@@ -227,7 +227,7 @@ export default {
                 if (kind == "put") {
                     this.modal_title = MODAL_TITLE_PUT;
                     document.getElementById("modal_task").disabled = false;
-                    document.getElementById("modal_memo").disabled = false;
+                    document.getElementById("modal_detail").disabled = false;
                     document.getElementById("modal_user").disabled = false;
                     document.getElementById("modal_status").disabled = false;
                     document.getElementById("modal_limit").disabled = false;
@@ -235,7 +235,7 @@ export default {
                 } else if (kind == "delete") {
                     this.modal_title = MODAL_TITLE_DELETE;
                     document.getElementById("modal_task").disabled = true;
-                    document.getElementById("modal_memo").disabled = true;
+                    document.getElementById("modal_detail").disabled = true;
                     document.getElementById("modal_user").disabled = true;
                     document.getElementById("modal_status").disabled = true;
                     document.getElementById("modal_limit").disabled = true;
@@ -252,7 +252,7 @@ export default {
             this.loading = false;
         },
         async call_contents_api() {
-            if (!this.modal_value.task || !this.modal_value.memo || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
+            if (!this.modal_value.task || !this.modal_value.detail || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
                 this.modal_error = "Can not empty";
                 this.modal_error_show = true;
                 throw Error("Can not empty");
@@ -266,7 +266,7 @@ export default {
                 api_method = "POST";
                 params = {
                     task: this.modal_value.task,
-                    memo: this.modal_value.memo,
+                    detail: this.modal_value.detail,
                     user_id: this.modal_value.user,
                     status: this.modal_value.status,
                     limit: this.modal_value.limit
@@ -277,7 +277,7 @@ export default {
                 api_url = `${api_url}?task_id=${this.modal_value.task_id}`
                 params = {
                     task: this.modal_value.task,
-                    memo: this.modal_value.memo,
+                    detail: this.modal_value.detail,
                     user_id: this.modal_value.user,
                     status: this.modal_value.status,
                     limit: this.modal_value.limit

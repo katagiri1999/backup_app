@@ -9,7 +9,7 @@ class Task:
     user_id: str = None
     team_id: str = None
     task: str = None
-    memo: str = None
+    detail: str = None
     status: str = None
     limit: str = None
 
@@ -32,8 +32,8 @@ class Task:
                 errors.append(const.team_id)
             if not self.task:
                 errors.append(const.task)
-            if not self.memo:
-                errors.append(const.memo)
+            if not self.detail:
+                errors.append(const.detail)
             if not self.status:
                 errors.append(const.status)
             if not self.limit:

@@ -89,9 +89,9 @@ def post(params: dict) -> dict:
         content = Task(
             task_id=str(uuid.uuid4()),
             team_id=params[const.team_id],
-            user_id=params[const.user_id],
+            user_id=body.get(const.user_id),
             task=body.get(const.task),
-            memo=body.get(const.memo),
+            detail=body.get(const.detail),
             status=body.get(const.status),
             limit=body.get(const.limit),
         )
@@ -121,9 +121,9 @@ def put(params: dict) -> dict:
         content = Task(
             task_id=query_params[const.task_id],
             team_id=params[const.team_id],
-            user_id=params[const.user_id],
+            user_id=body.get(const.user_id),
             task=body.get(const.task),
-            memo=body.get(const.memo),
+            detail=body.get(const.detail),
             status=body.get(const.status),
             limit=body.get(const.limit),
         )
@@ -143,16 +143,16 @@ def put(params: dict) -> dict:
 
         db_client.update_item(
             Key={const.task_id: content.task_id, const.team_id: content.team_id},
-            UpdateExpression='set #task = :task, #memo = :memo, #status = :status, #limit = :limit',
+            UpdateExpression='set #task = :task, #detail = :detail, #status = :status, #limit = :limit',
             ExpressionAttributeNames={
                 '#task': 'task',
-                '#memo': 'memo',
+                '#detail': 'detail',
                 '#status': 'status',
                 '#limit': 'limit',
             },
             ExpressionAttributeValues={
                 ':task': content.task,
-                ':memo': content.memo,
+                ':detail': content.detail,
                 ':status': content.status,
                 ':limit': content.limit,
             }
@@ -178,7 +178,6 @@ def delete(params: dict) -> dict:
         content = Task(
             task_id=query_params[const.task_id],
             team_id=params[const.team_id],
-            user_id=params[const.user_id],
         )
 
         db_client = common_func.dynamodb_client(const.tasks_backapp)
@@ -198,7 +197,7 @@ def delete(params: dict) -> dict:
 
         pre_content = row[const.contents][0]
         content.task = pre_content[const.task]
-        content.memo = pre_content[const.memo]
+        content.detail = pre_content[const.detail]
         content.status = pre_content[const.status]
         content.limit = pre_content[const.limit]
         return content.to_dict()

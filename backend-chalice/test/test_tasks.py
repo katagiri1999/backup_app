@@ -83,7 +83,8 @@ def test_tasks_post1(id_token):
         const.query_params: {},
         const.body: {
             const.task: "test_task",
-            const.memo: "memomemo",
+            const.detail: "detail",
+            const.user_id: "temp_user@gmail.com",
             const.status: const.Finished,
             const.limit: "2022-02-02"
         }
@@ -104,7 +105,8 @@ def test_tasks_post_error2(id_token):
         const.query_params: {},
         const.body: {
             const.task: "",
-            const.memo: "",
+            const.detail: "",
+            const.user_id: "",
             const.status: "",
             const.limit: ""
         }
@@ -125,7 +127,8 @@ def test_tasks_put1(id_token):
         const.query_params: {},
         const.body: {
             const.task: "test_task",
-            const.memo: "memomemo",
+            const.detail: "memomemo",
+            const.user_id: "temp_user1@gmail.com",
             const.status: const.Finished,
             const.limit: "2022-02-02"
         }
@@ -141,7 +144,8 @@ def test_tasks_put1(id_token):
         const.query_params: {const.task_id: task_id},
         const.body: {
             const.task: "test_task2",
-            const.memo: "memomemomemomemo2",
+            const.detail: "memomemomemomemo2",
+            const.user_id: "temp_user2@gmail.com",
             const.status: const.Processing,
             const.limit: "2022-02-02"
         }
@@ -162,7 +166,8 @@ def test_tasks_put_error1(id_token):
         const.query_params: {const.task_id: "hogehoge"},
         const.body: {
             const.task: "not exist",
-            const.memo: "memomemomemomemo",
+            const.detail: "memomemomemomemo",
+            const.user_id: "temp_user@gmail.com",
             const.status: const.Processing,
             const.limit: "2022-02-02"
         }
@@ -183,7 +188,8 @@ def test_tasks_put_error2(id_token):
         const.query_params: {const.task_id: "hogehoge"},
         const.body: {
             const.task: "",
-            const.memo: "",
+            const.detail: "",
+            const.user_id: "",
             const.status: "",
             const.limit: ""
         }
@@ -204,7 +210,8 @@ def test_tasks_put_error3(id_token):
         const.query_params: {const.task_id: ""},
         const.body: {
             const.task: "hogehoge",
-            const.memo: "hogehoge",
+            const.detail: "hogehoge",
+            const.user_id: "temp_user@gmail.com",
             const.status: const.Processing,
             const.limit: "2022-02-02"
         }
@@ -225,7 +232,8 @@ def test_tasks_delete1(id_token):
         const.query_params: {},
         const.body: {
             const.task: "test_task",
-            const.memo: "memomemo",
+            const.detail: "memomemo",
+            const.user_id: "temp_user@gmail.com",
             const.status: const.Finished,
             const.limit: "2022-02-02"
         }

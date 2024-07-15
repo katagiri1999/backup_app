@@ -18,6 +18,7 @@ class Const:
     __contents = "contents"
     __Content_Type = "Content-Type"
     __DELETE = "DELETE"
+    __detail = "detail"
     __exception = "exception"
     __exp = "exp"
     __GET = "GET"
@@ -50,7 +51,6 @@ class Const:
     __Untouched = "Untouched"
     __user_id = "user_id"
     __users_backapp = "users-backapp"
-    __memo = "memo"
 
     @property
     def admin(self) -> str:
@@ -99,6 +99,10 @@ class Const:
     @property
     def DELETE(self) -> str:
         return self.__DELETE
+
+    @property
+    def detail(self) -> str:
+        return self.__detail
 
     @property
     def exception(self) -> str:
@@ -227,10 +231,6 @@ class Const:
     @property
     def users_backapp(self) -> str:
         return self.__users_backapp
-
-    @property
-    def memo(self) -> str:
-        return self.__memo
 
 
 const = Const()
