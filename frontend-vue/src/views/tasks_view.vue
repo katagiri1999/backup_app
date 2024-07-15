@@ -15,7 +15,7 @@
     </div>
 
     <Vue3EasyDataTable :headers="table_headers" :items="table_items" :rows-per-page="10" :table-height="420"
-        theme-color="gray" buttons-pagination>
+        theme-color="gray" buttons-pagination :body-item-class-name="bodyItemClassNameFunction" :header-item-class-name="headerItemClassNameFunction">
         <template #item-operation="item">
             <svg @click="open_modal('put', item)" data-bs-toggle="modal" data-bs-target="#modal1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -37,17 +37,22 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-floating">
-                        <input type="text" class="form-control" v-model="modal_task" id="modal_task">
+                        <input type="text" class="form-control" v-model="modal_value.task" id="modal_task">
                         <label>Task:</label>
                     </div>
                     <br>
                     <div class="form-floating">
-                        <textarea class="form-control" v-model="modal_memo" id="modal_memo"></textarea>
+                        <textarea class="form-control" v-model="modal_value.memo" id="modal_memo"></textarea>
                         <label>Memo:</label>
                     </div>
                     <br>
                     <div class="form-floating">
-                        <select class="form-select form-select-sm" v-model="modal_status" id="modal_status">
+                        <input type="text" class="form-control" v-model="modal_value.user" id="modal_user">
+                        <label>User:</label>
+                    </div>
+                    <br>
+                    <div class="form-floating">
+                        <select class="form-select form-select-sm" v-model="modal_value.status" id="modal_status">
                             <option value="Untouched">Untouched</option>
                             <option value="Processing">Processing</option>
                             <option value="Finished">Finished</option>
@@ -56,7 +61,7 @@
                     </div>
                     <br>
                     <div class="form-floating">
-                        <input type="date" class="form-control" v-model="modal_limit" id="modal_limit">
+                        <input type="date" class="form-control" v-model="modal_value.limit" id="modal_limit">
                         <label>Limit:</label>
                     </div>
                     <div class="error">
@@ -96,6 +101,10 @@ svg:hover {
 .vue3-easy-data-table {
     margin: 1%;
     padding: 1%;
+
+    .task_id_column {
+        display: none;
+    }
 
     .vue3-easy-data-table__header th {
         background-color: #ededed;
@@ -150,20 +159,35 @@ export default {
     mixins: [common_func_component],
     data() {
         return {
+            bodyItemClassNameFunction: (column) => {
+                if (column === 'task_id') return 'task_id_column';
+                return '';
+            },
+            headerItemClassNameFunction: (header) => {
+                if (header.value === 'task_id') return 'task_id_column';
+                return '';
+            },
             loading: false,
+            teams: [],
+            modal_value: {
+                task_id: "",
+                task: "",
+                memo: "",
+                user: "",
+                status: "",
+                limit: "",
+            },
             modal_title: "",
-            modal_task: "",
-            modal_memo: "",
-            modal_status: "",
-            modal_limit: "",
             modal_error: "",
             modal_error_show: false,
             table_headers: [
-                { text: "TASK", value: "task", sortable: true, width: 300 },
-                { text: "MEMO", value: "memo", sortable: true, width: 300 },
-                { text: "STATUS", value: "status", sortable: true, width: 1 },
-                { text: "LIMIT", value: "limit", sortable: true, width: 1 },
-                { text: "OPERATION", value: "operation", width: 1 },
+                { text: "TASK_ID", value: "task_id" },
+                { text: "TASK", value: "task", sortable: true },
+                { text: "MEMO", value: "memo", sortable: true },
+                { text: "USER", value: "user_id", sortable: true },
+                { text: "STATUS", value: "status", sortable: true },
+                { text: "LIMIT", value: "limit", sortable: true },
+                { text: "OPERATION", value: "operation" },
             ],
             table_items: [],
         }
@@ -181,27 +205,30 @@ export default {
 
             if (kind == "post") {
                 this.modal_title = MODAL_TITLE_POST;
-                this.modal_task = "";
-                this.modal_memo = "";
-                this.modal_status = "";
-                this.modal_limit = "";
+                this.modal_value.task = "";
+                this.modal_value.memo = "";
+                this.modal_value.user = "";
+                this.modal_value.status = "";
+                this.modal_value.limit = "";
                 document.getElementById("modal_task").disabled = false;
                 document.getElementById("modal_memo").disabled = false;
-                document.getElementById("modal_memo").disabled = false;
+                document.getElementById("modal_user").disabled = false;
                 document.getElementById("modal_status").disabled = false;
                 document.getElementById("modal_limit").disabled = false;
 
             } else {
-                this.modal_task = item.task;
-                this.modal_memo = item.memo;
-                this.modal_status = item.status;
-                this.modal_limit = item.limit;
+                this.modal_value.task_id = item.task_id;
+                this.modal_value.task = item.task;
+                this.modal_value.memo = item.memo;
+                this.modal_value.user = item.user_id;
+                this.modal_value.status = item.status;
+                this.modal_value.limit = item.limit;
 
                 if (kind == "put") {
                     this.modal_title = MODAL_TITLE_PUT;
-                    document.getElementById("modal_task").disabled = true;
+                    document.getElementById("modal_task").disabled = false;
                     document.getElementById("modal_memo").disabled = false;
-                    document.getElementById("modal_memo").disabled = false;
+                    document.getElementById("modal_user").disabled = false;
                     document.getElementById("modal_status").disabled = false;
                     document.getElementById("modal_limit").disabled = false;
 
@@ -209,7 +236,7 @@ export default {
                     this.modal_title = MODAL_TITLE_DELETE;
                     document.getElementById("modal_task").disabled = true;
                     document.getElementById("modal_memo").disabled = true;
-                    document.getElementById("modal_memo").disabled = true;
+                    document.getElementById("modal_user").disabled = true;
                     document.getElementById("modal_status").disabled = true;
                     document.getElementById("modal_limit").disabled = true;
                 }
@@ -225,34 +252,53 @@ export default {
             this.loading = false;
         },
         async call_contents_api() {
-            if (!this.modal_task || !this.modal_memo || !this.modal_status || !this.modal_limit) {
+            if (!this.modal_value.task || !this.modal_value.memo || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
                 this.modal_error = "Can not empty";
                 this.modal_error_show = true;
                 throw Error("Can not empty");
             }
 
-            if (this.modal_title == MODAL_TITLE_POST) {
-                var api_method = "POST";
+            var api_url = `${process.env.VUE_APP_API_BASE}/tasks`;
+            var api_method = "";
+            var params = {};
 
-                for (let item of this.table_items) {
-                    if (this.modal_task == item.task) {
-                        this.modal_error = "Not unique task";
-                        this.modal_error_show = true;
-                        throw Error("Not unique task");
-                    }
+            if (this.modal_title == MODAL_TITLE_POST) {
+                api_method = "POST";
+                params = {
+                    task: this.modal_value.task,
+                    memo: this.modal_value.memo,
+                    user_id: this.modal_value.user,
+                    status: this.modal_value.status,
+                    limit: this.modal_value.limit
                 }
 
             } else if (this.modal_title == MODAL_TITLE_PUT) {
                 api_method = "PUT";
+                api_url = `${api_url}?task_id=${this.modal_value.task_id}`
+                params = {
+                    task: this.modal_value.task,
+                    memo: this.modal_value.memo,
+                    user_id: this.modal_value.user,
+                    status: this.modal_value.status,
+                    limit: this.modal_value.limit
+                }
 
             } else if (this.modal_title == MODAL_TITLE_DELETE) {
                 api_method = "DELETE";
+                params = {
+                    task_id: this.modal_value.task_id,
+                }
             }
 
             this.loading = true;
             document.getElementById('modal_close1').click();
             var headers = this.common_headers();
-            await this.common_requests(`${process.env.VUE_APP_API_BASE}/tasks`, api_method, headers, { task: this.modal_task, memo: this.modal_memo, status: this.modal_status, limit: this.modal_limit });
+            await this.common_requests(
+                api_url,
+                api_method,
+                headers,
+                params,
+            );
 
             this.loading = false;
             this.get_contents();
@@ -261,7 +307,38 @@ export default {
             this.loading = true;
 
             var headers = this.common_headers();
-            var res = await this.common_requests(`${process.env.VUE_APP_API_BASE}/refresh`, "POST", headers);
+            var res = await this.common_requests(
+                `${process.env.VUE_APP_API_BASE}/teams`,
+                "GET",
+                headers,
+            );
+            this.teams = res.contents;
+
+            if (this.teams.length == 0) {
+                res = await this.common_requests(
+                    `${process.env.VUE_APP_API_BASE}/teams`,
+                    "POST",
+                    headers,
+                    { team_name: sessionStorage.getItem("user_id") },
+                );
+
+                res = await this.common_requests(
+                    `${process.env.VUE_APP_API_BASE}/refresh`,
+                    "POST",
+                    headers,
+                    { team_id: res.team_id },
+                );
+
+            } else {
+
+                headers = this.common_headers();
+                res = await this.common_requests(
+                    `${process.env.VUE_APP_API_BASE}/refresh`,
+                    "POST",
+                    headers,
+                    { team_id: this.teams[0].team_id }
+                );
+            }
 
             var token = res.id_token;
             sessionStorage.setItem("token", token);
