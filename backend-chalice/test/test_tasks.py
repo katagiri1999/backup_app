@@ -85,7 +85,7 @@ def test_tasks_post1(id_token):
             const.task: "test_task",
             const.memo: "memomemo",
             const.status: const.Finished,
-            const.limit: "2022/02/02"
+            const.limit: "2022-02-02"
         }
     }
     res = func_tasks.main(params)
@@ -127,7 +127,7 @@ def test_tasks_put1(id_token):
             const.task: "test_task",
             const.memo: "memomemo",
             const.status: const.Finished,
-            const.limit: "2022/02/02"
+            const.limit: "2022-02-02"
         }
     }
     task_id = func_tasks.main(params)[const.body][const.task_id]
@@ -143,7 +143,7 @@ def test_tasks_put1(id_token):
             const.task: "test_task2",
             const.memo: "memomemomemomemo2",
             const.status: const.Processing,
-            const.limit: "2022/02/02"
+            const.limit: "2022-02-02"
         }
     }
     res = func_tasks.main(params)
@@ -164,7 +164,7 @@ def test_tasks_put_error1(id_token):
             const.task: "not exist",
             const.memo: "memomemomemomemo",
             const.status: const.Processing,
-            const.limit: "2022/02/02"
+            const.limit: "2022-02-02"
         }
     }
     res = func_tasks.main(params)
@@ -206,7 +206,7 @@ def test_tasks_put_error3(id_token):
             const.task: "hogehoge",
             const.memo: "hogehoge",
             const.status: const.Processing,
-            const.limit: "2022/02/02"
+            const.limit: "2022-02-02"
         }
     }
     res = func_tasks.main(params)
@@ -227,7 +227,7 @@ def test_tasks_delete1(id_token):
             const.task: "test_task",
             const.memo: "memomemo",
             const.status: const.Finished,
-            const.limit: "2022/02/02"
+            const.limit: "2022-02-02"
         }
     }
     task_id = func_tasks.main(params)[const.body][const.task_id]
