@@ -68,10 +68,8 @@ export default {
         history.replaceState("", "", url.pathname);
         var api_url = `${process.env.VUE_APP_API_BASE}/login`;
 
-        var is_local = location.href.includes('localhost') || location.href.includes('127.0.0.1');
-
         var headers = this.common_headers();
-        var res = await this.common_requests(api_url, "POST", headers, { authorization_code: code, local: is_local });
+        var res = await this.common_requests(api_url, "POST", headers, { authorization_code: code, redirect_uri:  process.env.VUE_APP_REDIRECT_URI });
 
         sessionStorage.setItem("token", res.id_token);
         sessionStorage.setItem("user_id", res.user_id);

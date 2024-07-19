@@ -13,15 +13,28 @@ TEAM_ID = test_config.TEAM_ID
 
 
 def test_login_error1():
-    print(f"\n{RED}--- invalid code ---{WHITE}")
-    code = "aaa"
+    print(f"\n{RED}--- invalid code, redirect_uri ---{WHITE}")
     params = {
         const.headers: {const.Content_Type: const.application_json},
-        const.body: {const.authorization_code: code},
+        const.body: {
+            const.authorization_code: "hogehoge",
+            const.redirect_uri: "hogehoge"
+        },
     }
     res = func_login.main(params)
     printer(res)
     assert res["status_code"] == 401
+
+
+def test_login_error2():
+    print(f"\n{RED}--- invalid code, redirect_uri ---{WHITE}")
+    params = {
+        const.headers: {const.Content_Type: const.application_json},
+        const.body: {},
+    }
+    res = func_login.main(params)
+    printer(res)
+    assert res["status_code"] == 400
 
 
 def test_refresh1(id_token):

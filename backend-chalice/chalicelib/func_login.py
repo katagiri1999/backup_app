@@ -10,19 +10,19 @@ def main(params: dict) -> dict:
     try:
         body: dict = params[const.body]
         authorization_code: str = body.get(const.authorization_code)
-        is_local: bool = body.get("local")
+        redirect_uri: str = body.get(const.redirect_uri)
 
-        if not authorization_code:
+        if not authorization_code or not redirect_uri:
             err_params = {
-                const.exception: f"not provide {const.authorization_code}",
-                const.status_code: 401,
+                const.exception: f"not provide {const.authorization_code} or {const.redirect_uri}",
+                const.status_code: 400,
             }
             raise Exception(err_params)
 
         # url decode
         authorization_code = parse.unquote(authorization_code)
 
-        user_id = code_to_email(authorization_code, is_local)
+        user_id = code_to_email(authorization_code, redirect_uri)
 
         id_token = common_func.generate_jwt(user_id, "", "")
 
@@ -37,22 +37,17 @@ def main(params: dict) -> dict:
         return common_func.error_handler(e)
 
 
-def code_to_email(authorization_code: str, is_local: bool) -> str:
+def code_to_email(authorization_code: str, redirect_uri: str) -> str:
     try:
         TOKEN_ENDPOINT = "https://accounts.google.com/o/oauth2/token"
         USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo"
         data = {
             const.code: authorization_code,
+            const.redirect_uri: redirect_uri,
             const.grant_type: const.authorization_code,
             const.client_id: config.GCP_CLIENT_ID,
             const.client_secret: config.GCP_CLIENT_SECRET,
-            const.redirect_uri: config.APP_URL,
         }
-
-        if is_local:
-            data.update({
-                const.redirect_uri: config.LOCAL_APP_URL
-            })
 
         res1 = requests.post(url=TOKEN_ENDPOINT, data=data)
 
