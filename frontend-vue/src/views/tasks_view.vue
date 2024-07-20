@@ -12,6 +12,7 @@
         </svg>
         <reload_component />
         <logout_component />
+        <offcanvas_component :teams="teams" @get_teams="get_teams()" />
     </div>
 
     <Vue3EasyDataTable :headers="table_headers" :items="table_items" :rows-per-page="10" :table-height="420"
@@ -148,6 +149,7 @@ import common_func_component from "../components/common_func_component.vue";
 import setting_component from "../components/setting_component.vue";
 import reload_component from "../components/reload_component.vue";
 import logout_component from "../components/logout_component.vue";
+import offcanvas_component from "../components/offcanvas_component.vue";
 import VueElementLoading from "vue-element-loading";
 import Vue3EasyDataTable from 'vue3-easy-data-table';
 import 'vue3-easy-data-table/dist/style.css';
@@ -195,7 +197,7 @@ export default {
         }
     },
     components: {
-        header_component, VueElementLoading, Vue3EasyDataTable, setting_component, reload_component, logout_component
+        header_component, VueElementLoading, Vue3EasyDataTable, setting_component, reload_component, logout_component, offcanvas_component
     },
     async created() {
         await this.first();
@@ -312,12 +314,13 @@ export default {
             this.loading = false;
         },
         async first() {
+            var query_team_id = (new URL(document.location)).searchParams.get("team_id");
             this.loading = true;
 
             await this.get_teams();
 
             var self_team_id = "";
-            for(let team of this.teams) {
+            for (let team of this.teams) {
                 if (team.team_name == this.self_user_id) {
                     self_team_id = team.team_id;
                 }
@@ -334,12 +337,15 @@ export default {
                 this.teams = [res];
             }
 
+            var team_id = query_team_id ? query_team_id : self_team_id;
             res = await this.common_requests(
                 `${process.env.VUE_APP_API_BASE}/refresh`,
                 "POST",
                 this.common_headers(),
-                { team_id: self_team_id }
+                { team_id: team_id }
             );
+
+            history.replaceState("", "", `${new URL(document.location).pathname}?team_id=${team_id}`);
 
             var token = res.id_token;
             sessionStorage.setItem("token", token);
