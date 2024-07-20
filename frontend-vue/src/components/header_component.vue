@@ -1,11 +1,6 @@
 <template>
     <header class="header_header">
         <h1>Back-app</h1>
-
-        <template v-if="after_login">
-            <router-link to="/tasks" exact-active-class="active">Tasks</router-link>
-        </template>
-
     </header>
 </template>
 
@@ -18,28 +13,7 @@
 
     h1 {
         border-bottom: double 3px white;
-    }
-
-    h5 {
-        padding-top: 1%;
-    }
-
-    a {
-        color: gray;
-    }
-
-    .active {
-        color: white;
+        margin-bottom: 3%;
     }
 }
 </style>
-
-<script>
-export default {
-    props: {
-        msg: String,
-        after_login: Boolean,
-    }
-}
-
-</script>
