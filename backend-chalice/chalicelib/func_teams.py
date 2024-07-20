@@ -121,6 +121,7 @@ def post(params: dict) -> dict:
 def delete(params: dict) -> dict:
     try:
         team_id = params[const.team_id]
+        user_id = params[const.user_id]
 
         if not team_id:
             err_params = {
@@ -143,17 +144,24 @@ def delete(params: dict) -> dict:
         })
         row = get(r_params, db_client)
 
-        if len(row[const.contents]) == 0:
+        pre_content: list[dict] = row[const.contents]
+        if len(pre_content) == 0:
             err_params = {
                 const.exception: f"not found {content.team_id}",
                 const.status_code: 404,
             }
             raise Exception(err_params)
 
+        if (pre_content[0].get(const.user_id)) == user_id:
+            err_params = {
+                const.exception: f"can not delete default team",
+                const.status_code: 403,
+            }
+            raise Exception(err_params)
+
         db_client.delete_item(Key={const.team_id: content.team_id})
 
-        pre_content = row[const.contents][0]
-        content.team_name = pre_content[const.team_name]
+        content.team_name = pre_content[0][const.team_name]
         return content.to_dict()
 
     except Exception as e:

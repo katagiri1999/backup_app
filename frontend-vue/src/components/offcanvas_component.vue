@@ -119,6 +119,11 @@ export default {
             this.loading = false;
         },
         async delete_team() {
+            if (this.now_team_name == sessionStorage.getItem("user_id")) {
+                alert("Can not delete this team");
+                throw Error("Can not delete this team");
+            }
+
             var result = confirm("Are you sure you want to delete this Team?");
             console.log(result);
             if (!result) {
