@@ -31,7 +31,7 @@ def main(params: dict) -> dict:
         status_code = 200
 
         method = params[const.method]
-        if method in [const.PUT, const.DELETE] and role != const.admin:
+        if method in [const.DELETE] and role != const.admin:
             err_params = {
                 const.exception: f"no permissions: not {const.admin}",
                 const.status_code: 403,
@@ -42,8 +42,6 @@ def main(params: dict) -> dict:
             res = get(params)
         elif method == const.POST:
             res = post(params)
-        elif method == const.PUT:
-            res = put(params)
         elif method == const.DELETE:
             res = delete(params)
 
@@ -113,58 +111,6 @@ def post(params: dict) -> dict:
             }
         })
         func_users.post(r_params)
-
-        return content.to_dict()
-
-    except Exception as e:
-        raise e
-
-
-def put(params: dict) -> dict:
-    try:
-        body: dict = params[const.body]
-        team_id = params[const.team_id]
-
-        if not team_id:
-            err_params = {
-                const.exception: f"not provide {const.team_id}",
-                const.status_code: 400,
-            }
-            raise Exception(err_params)
-
-        content = Team(
-            team_id=team_id,
-            team_name=body.get(const.team_name),
-        )
-        content.validation()
-
-        db_client = common_func.dynamodb_client(const.teams_backapp)
-
-        r_params = copy.deepcopy(params)
-        r_params.update({
-            const.query_params: {
-                const.team_id: team_id
-            }
-        })
-        row = get(r_params, db_client)
-
-        if len(row[const.contents]) == 0:
-            err_params = {
-                const.exception: f"not found {content.team_id}",
-                const.status_code: 404,
-            }
-            raise Exception(err_params)
-
-        db_client.update_item(
-            Key={const.team_id: content.team_id},
-            UpdateExpression='set #team_name = :team_name',
-            ExpressionAttributeNames={
-                '#team_name': 'team_name',
-            },
-            ExpressionAttributeValues={
-                ':team_name': content.team_name,
-            }
-        )
 
         return content.to_dict()
 

@@ -62,7 +62,7 @@ def contents_api_handler():
     return http_response_handler(res)
 
 
-@app.route("/teams", methods=[const.GET, const.POST, const.PUT, const.DELETE], content_types=[const.application_json], cors=True)
+@app.route("/teams", methods=[const.GET, const.POST, const.DELETE], content_types=[const.application_json], cors=True)
 def contents_api_handler():
     params = http_request_handler(app.current_request)
     res = func_teams.main(params)

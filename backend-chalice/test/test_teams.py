@@ -135,58 +135,6 @@ def test_teams_post_error1(id_token):
     assert res["status_code"] == 400
 
 
-def test_teams_put1(id_token):
-    print(f"\n{RED}--- put teams ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: id_token,
-        },
-        const.method: const.PUT,
-        const.body: {
-            const.team_name: "test1"
-        }
-    }
-    res = func_teams.main(params)
-    printer(res)
-    assert res["status_code"] == 200
-
-
-def test_teams_put_error1(id_token):
-    print(f"\n{RED}--- put teams (invalid team_name) ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: id_token,
-        },
-        const.method: const.PUT,
-        const.body: {
-            const.team_name: ""
-        }
-    }
-    res = func_teams.main(params)
-    printer(res)
-    assert res["status_code"] == 400
-
-
-def test_teams_put_error2(id_token_no_admin):
-    print(f"\n{RED}--- put teams (not admin) ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: id_token_no_admin,
-        },
-        const.method: const.PUT,
-        const.query_params: {const.team_id: TEAM_ID},
-        const.body: {
-            const.team_name: "test1"
-        }
-    }
-    res = func_teams.main(params)
-    printer(res)
-    assert res["status_code"] == 403
-
-
 def test_teams_delete1(id_token):
     print(f"\n{RED}--- delete teams ---{WHITE}")
     params = {
