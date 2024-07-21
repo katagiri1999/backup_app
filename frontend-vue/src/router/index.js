@@ -11,6 +11,11 @@ const routes = [
     name: 'tasks',
     component: () => import('@/views/tasks_view.vue')
   },
+  {
+    path: '/tasks/detail',
+    name: 'detail',
+    component: () => import('@/views/detail_view.vue')
+  },
 ]
 
 const router = createRouter({

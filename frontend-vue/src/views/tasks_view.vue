@@ -16,6 +16,12 @@
     </div>
 
     <Vue3EasyDataTable :headers="table_headers" :items="table_items" :rows-per-page="10" :table-height="420" theme-color="gray" buttons-pagination :body-item-class-name="bodyItemClassNameFunction" :header-item-class-name="headerItemClassNameFunction">
+        <template #item-detail="item">
+            <svg @click="to_detail(item)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+            </svg>
+        </template>
         <template #item-operation="item">
             <svg @click="open_modal('put', item)" data-bs-toggle="modal" data-bs-target="#modal1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -39,11 +45,6 @@
                     <div class="form-floating">
                         <input type="text" class="form-control" v-model="modal_value.task" id="modal_task">
                         <label>Task:</label>
-                    </div>
-                    <br>
-                    <div class="form-floating">
-                        <textarea class="form-control" v-model="modal_value.detail" id="modal_detail"></textarea>
-                        <label>Detail:</label>
                     </div>
                     <br>
                     <div class="form-floating">
@@ -171,12 +172,12 @@ export default {
                 return '';
             },
             self_user_id: sessionStorage.getItem("user_id"),
+            team_id: "",
             loading: false,
             teams: [],
             modal_value: {
                 task_id: "",
                 task: "",
-                detail: "",
                 user: "",
                 status: "",
                 limit: "",
@@ -208,12 +209,10 @@ export default {
             if (kind == "post") {
                 this.modal_title = MODAL_TITLE_POST;
                 this.modal_value.task = "";
-                this.modal_value.detail = "";
                 this.modal_value.user = "";
                 this.modal_value.status = "";
                 this.modal_value.limit = "";
                 document.getElementById("modal_task").disabled = false;
-                document.getElementById("modal_detail").disabled = false;
                 document.getElementById("modal_user").disabled = false;
                 document.getElementById("modal_status").disabled = false;
                 document.getElementById("modal_limit").disabled = false;
@@ -221,7 +220,6 @@ export default {
             } else {
                 this.modal_value.task_id = item.task_id;
                 this.modal_value.task = item.task;
-                this.modal_value.detail = item.detail;
                 this.modal_value.user = item.user_id;
                 this.modal_value.status = item.status;
                 this.modal_value.limit = item.limit;
@@ -229,7 +227,6 @@ export default {
                 if (kind == "put") {
                     this.modal_title = MODAL_TITLE_PUT;
                     document.getElementById("modal_task").disabled = false;
-                    document.getElementById("modal_detail").disabled = false;
                     document.getElementById("modal_user").disabled = false;
                     document.getElementById("modal_status").disabled = false;
                     document.getElementById("modal_limit").disabled = false;
@@ -237,7 +234,6 @@ export default {
                 } else if (kind == "delete") {
                     this.modal_title = MODAL_TITLE_DELETE;
                     document.getElementById("modal_task").disabled = true;
-                    document.getElementById("modal_detail").disabled = true;
                     document.getElementById("modal_user").disabled = true;
                     document.getElementById("modal_status").disabled = true;
                     document.getElementById("modal_limit").disabled = true;
@@ -263,7 +259,7 @@ export default {
             this.teams = res.contents;
         },
         async call_contents_api() {
-            if (!this.modal_value.task || !this.modal_value.detail || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
+            if (!this.modal_value.task || !this.modal_value.user || !this.modal_value.status || !this.modal_value.limit) {
                 this.modal_error = "Can not empty";
                 throw Error("Can not empty");
             }
@@ -276,7 +272,6 @@ export default {
                 api_method = "POST";
                 params = {
                     task: this.modal_value.task,
-                    detail: this.modal_value.detail,
                     user_id: this.modal_value.user,
                     status: this.modal_value.status,
                     limit: this.modal_value.limit
@@ -287,7 +282,6 @@ export default {
                 api_url = `${api_url}?task_id=${this.modal_value.task_id}`
                 params = {
                     task: this.modal_value.task,
-                    detail: this.modal_value.detail,
                     user_id: this.modal_value.user,
                     status: this.modal_value.status,
                     limit: this.modal_value.limit
@@ -311,6 +305,10 @@ export default {
 
             await this.get_contents();
             this.loading = false;
+        },
+        to_detail(item) {
+            history.replaceState("", "", `${new URL(document.location).pathname}/detail?task_id=${item.task_id}&team_id=${this.team_id}`);
+            location.reload();
         },
         async first() {
             var query_team_id = (new URL(document.location)).searchParams.get("team_id");
@@ -336,7 +334,8 @@ export default {
                 this.teams = [res];
             }
 
-            var team_id = query_team_id ? query_team_id : self_team_id;
+            this.team_id = query_team_id ? query_team_id : self_team_id;
+            var team_id = this.team_id;
             res = await this.common_requests(
                 `${process.env.VUE_APP_API_BASE}/refresh`,
                 "POST",
