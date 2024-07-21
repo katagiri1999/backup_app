@@ -32,8 +32,6 @@ class Task:
                 errors.append(const.team_id)
             if not self.task:
                 errors.append(const.task)
-            if not self.detail:
-                errors.append(const.detail)
             if not self.status:
                 errors.append(const.status)
             if not self.limit:
