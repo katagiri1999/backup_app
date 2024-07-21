@@ -118,17 +118,6 @@ def put(params: dict) -> dict:
             }
             raise Exception(err_params)
 
-        content = Task(
-            task_id=query_params[const.task_id],
-            team_id=params[const.team_id],
-            user_id=body.get(const.user_id),
-            task=body.get(const.task),
-            detail=body.get(const.detail),
-            status=body.get(const.status),
-            limit=body.get(const.limit),
-        )
-        content.validation()
-
         db_client = common_func.dynamodb_client(const.tasks_backapp)
 
         r_params = copy.deepcopy(params)
@@ -136,13 +125,29 @@ def put(params: dict) -> dict:
 
         if len(row[const.contents]) == 0:
             err_params = {
-                const.exception: f"not found {content.task_id}",
+                const.exception: f"not found {query_params[const.task_id]}",
                 const.status_code: 404,
             }
             raise Exception(err_params)
 
+        task_item = row[const.contents][0]
+        task = Task(**task_item)
+
+        if body.get(const.user_id):
+            task.user_id = body[const.user_id]
+        if body.get(const.task):
+            task.task = body[const.task]
+        if body.get(const.detail):
+            task.detail = body[const.detail]
+        if body.get(const.status):
+            task.status = body[const.status]
+        if body.get(const.limit):
+            task.limit = body[const.limit]
+
+        task.validation()
+
         db_client.update_item(
-            Key={const.task_id: content.task_id, const.team_id: content.team_id},
+            Key={const.task_id: task.task_id, const.team_id: task.team_id},
             UpdateExpression='set #task = :task, #detail = :detail, #user_id = :user_id, #status = :status, #limit = :limit',
             ExpressionAttributeNames={
                 '#task': 'task',
@@ -152,15 +157,15 @@ def put(params: dict) -> dict:
                 '#limit': 'limit',
             },
             ExpressionAttributeValues={
-                ':task': content.task,
-                ':detail': content.detail,
-                ':user_id': content.user_id,
-                ':status': content.status,
-                ':limit': content.limit,
+                ':task': task.task,
+                ':detail': task.detail,
+                ':user_id': task.user_id,
+                ':status': task.status,
+                ':limit': task.limit,
             }
         )
 
-        return content.to_dict()
+        return task.to_dict()
 
     except Exception as e:
         raise e

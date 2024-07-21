@@ -177,28 +177,6 @@ def test_tasks_put_error1(id_token):
     assert res["status_code"] == 404
 
 
-def test_tasks_put_error2(id_token):
-    print(f"\n{RED}--- put tasks (invalid content) ---{WHITE}")
-    params = {
-        const.headers: {
-            const.Content_Type: const.application_json,
-            const.authorization: id_token,
-        },
-        const.method: const.PUT,
-        const.query_params: {const.task_id: "hogehoge"},
-        const.body: {
-            const.task: "",
-            const.detail: "",
-            const.user_id: "",
-            const.status: "",
-            const.limit: ""
-        }
-    }
-    res = func_tasks.main(params)
-    printer(res)
-    assert res["status_code"] == 400
-
-
 def test_tasks_put_error3(id_token):
     print(f"\n{RED}--- put tasks (no query params) ---{WHITE}")
     params = {
