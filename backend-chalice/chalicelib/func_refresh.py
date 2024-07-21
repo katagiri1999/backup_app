@@ -19,7 +19,7 @@ def main(params: dict) -> dict:
         role = payload[const.role]
 
         body: dict = params[const.body]
-        if body.get(const.team_id) and (body[const.team_id] != team_id):
+        if body.get(const.team_id):
             r_params = copy.deepcopy(params)
             r_params.update({
                 const.team_id: body[const.team_id],

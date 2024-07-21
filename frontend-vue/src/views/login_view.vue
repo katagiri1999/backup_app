@@ -74,7 +74,6 @@ export default {
         sessionStorage.setItem("token", res.id_token);
         sessionStorage.setItem("user_id", res.user_id);
 
-        this.loading = false;
         this.$router.push("/tasks");
     },
     methods: {

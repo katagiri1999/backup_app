@@ -12,11 +12,10 @@
         </svg>
         <reload_component />
         <logout_component />
-        <offcanvas_component :teams="teams" @get_teams="get_teams()" />
+        <offcanvas_component :teams="teams" />
     </div>
 
-    <Vue3EasyDataTable :headers="table_headers" :items="table_items" :rows-per-page="10" :table-height="420"
-        theme-color="gray" buttons-pagination :body-item-class-name="bodyItemClassNameFunction" :header-item-class-name="headerItemClassNameFunction">
+    <Vue3EasyDataTable :headers="table_headers" :items="table_items" :rows-per-page="10" :table-height="420" theme-color="gray" buttons-pagination :body-item-class-name="bodyItemClassNameFunction" :header-item-class-name="headerItemClassNameFunction">
         <template #item-operation="item">
             <svg @click="open_modal('put', item)" data-bs-toggle="modal" data-bs-target="#modal1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -155,9 +154,9 @@ import Vue3EasyDataTable from 'vue3-easy-data-table';
 import 'vue3-easy-data-table/dist/style.css';
 
 
-const MODAL_TITLE_POST = "Register Content";
-const MODAL_TITLE_PUT = "Update Content";
-const MODAL_TITLE_DELETE = "Delete Content";
+const MODAL_TITLE_POST = "Register Task";
+const MODAL_TITLE_PUT = "Update Task";
+const MODAL_TITLE_DELETE = "Delete Task";
 
 export default {
     mixins: [common_func_component],
@@ -347,8 +346,8 @@ export default {
 
             history.replaceState("", "", `${new URL(document.location).pathname}?team_id=${team_id}`);
 
-            var token = res.id_token;
-            sessionStorage.setItem("token", token);
+            sessionStorage.setItem("token", res.id_token);
+            sessionStorage.setItem("role", res.role);
 
             await this.get_contents();
             this.loading = false;
