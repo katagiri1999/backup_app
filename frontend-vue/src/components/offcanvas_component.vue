@@ -99,7 +99,10 @@ export default defineComponent({
         const switch_team =()=> {
             if (team.value) {
                 loading.value = true;
-                location.href = `./tasks?team_id=${team.value.team_id}`;
+                var params = new URLSearchParams({
+                    team_id: team.value.team_id
+                });
+                location.href = "./tasks" + "?" + params;
             }
         }
         const new_team = async () => {
@@ -120,7 +123,10 @@ export default defineComponent({
             var new_team_id = res.team_id;
 
             loading.value = true;
-            location.href = `./tasks?team_id=${new_team_id}`;
+            var params = new URLSearchParams({
+                team_id: new_team_id
+            });
+            location.href = "./tasks" + "?" + params;
         }
 
         const delete_team = async () => {

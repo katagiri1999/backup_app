@@ -349,7 +349,11 @@ export default defineComponent({
 
         const to_detail = async (item) => {
             loading.value = true;
-            location.href = `./tasks/detail?task_id=${item.task_id}&team_id=${team_id.value}`;
+            var params = new URLSearchParams({
+                team_id: team_id.value,
+                task_id: item.task_id,
+            });
+            location.href = "./tasks/detail" + "?" + params;
         }
 
         created();

@@ -88,7 +88,15 @@ export default defineComponent({
 
             var state = Math.random().toString(36).slice(-8);
             sessionStorage.setItem("state", state);
-            window.location = `${process.env.VUE_APP_GOOGLE_AUTH}&state=${state}`
+            var params = new URLSearchParams({
+                state: state,
+                response_type: "code",
+                prompt: "select_account",
+                scope: "email",
+                client_id: process.env.VUE_APP_CLIENT_ID,
+                redirect_uri: process.env.VUE_APP_REDIRECT_URI,
+            });
+            location.href = process.env.VUE_APP_GOOGLE_AUTH + "?" + params;
         }
 
         created();
