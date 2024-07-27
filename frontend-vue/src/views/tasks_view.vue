@@ -307,8 +307,8 @@ export default {
             this.loading = false;
         },
         to_detail(item) {
-            history.replaceState("", "", `${new URL(document.location).pathname}/detail?task_id=${item.task_id}&team_id=${this.team_id}`);
-            location.reload();
+            this.loading = true;
+            location.href = `./tasks/detail?task_id=${item.task_id}&team_id=${this.team_id}`;
         },
         async first() {
             var query_team_id = (new URL(document.location)).searchParams.get("team_id");

@@ -23,7 +23,7 @@
                 @close="switch_team()"
             />
 
-            <span class="add_team">Add Team</span>
+            <span class="add_team">Add New Team</span>
             <div class="mb-3">
                 <input class="form-control" placeholder="Team Name" v-model="new_team_name">
             </div>
@@ -104,8 +104,8 @@ export default {
         },
         switch_team() {
             if (this.team) {
-                console.log(`switch to ${this.team.team_id}`);
-                location.href = `${new URL(document.location).pathname}?team_id=${this.team.team_id}`;
+                this.loading = true;
+                location.href = `./tasks?team_id=${this.team.team_id}`;
             }
         },
         async new_team() {
@@ -125,7 +125,8 @@ export default {
             );
             var new_team_id = res.team_id;
 
-            location.href = `${new URL(document.location).pathname}?team_id=${new_team_id}`;
+            this.loading = true;
+            location.href = `./tasks?team_id=${new_team_id}`;
         },
         async delete_team() {
             if (this.now_team_name == sessionStorage.getItem("user_id")) {
@@ -151,8 +152,8 @@ export default {
                 this.common_headers(),
             );
 
-            history.replaceState("", "", `${new URL(document.location).pathname}`);
-            location.reload();
+            this.loading = true;
+            location.href = `./tasks`;
         },
     }
 }

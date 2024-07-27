@@ -11,9 +11,8 @@
 </template>
 
 <style>
-.ql-editor {
-    margin-top: 5%;
-    margin-bottom: 5%;
+.ql-snow {
+    margin: 0.5%;
 }
 
 .detail_btn {
@@ -47,7 +46,6 @@ export default {
             editorOption: {
                 modules: {
                     toolbar: [
-                        [{ font: [] }],
                         ['bold', 'italic', 'underline', 'strike'],
                         ['blockquote', 'code-block'],
                         [{ list: 'ordered' }, { list: 'bullet' },  { list: 'check' }],
@@ -77,7 +75,8 @@ export default {
             this.loading = false;
         },
         async back() {
-            location.href = `../tasks?team_id=${this.team_id}`
+            this.loading = true;
+            location.href = `../tasks?team_id=${this.team_id}`;
         },
     },
     async created() {
