@@ -1,6 +1,6 @@
 <template>
     <vue-element-loading :active="loading" spinner="bar-fade-scale" is-full-screen />
-    <header_component msg="Login" />
+    <header_component />
 
     <div class="login">
         <img src="@/assets/google_login.svg" class="login-btn" @click="google_signin">

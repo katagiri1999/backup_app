@@ -1,7 +1,7 @@
 <template>
 
     <VueElementLoading :active="loading" spinner="bar-fade-scale" is-full-screen />
-    <header_component msg="Urls" :after_login="true" />
+    <header_component />
 
     <!-- メニューボタン -->
     <div class="menu_btn">

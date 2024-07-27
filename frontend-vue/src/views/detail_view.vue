@@ -1,6 +1,6 @@
 <template>
     <VueElementLoading :active="loading" spinner="bar-fade-scale" is-full-screen />
-    <header_component msg="Login" />
+    <header_component />
 
     <quill-editor v-model:value="text" :options="editorOption" />
 
