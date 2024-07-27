@@ -47,89 +47,84 @@
     display: flex;
 }
 
-.del_team, .select_team {
+.del_team,
+.select_team {
     margin-top: 5%;
     display: flex;
 }
 
 @media screen and (max-width: 768px) {
-    .offcanvas{
+    .offcanvas {
         --bs-offcanvas-width: 80%;
     }
 }
 </style>
 
 <script>
-import common_func_component from "../components/common_func_component.vue";
+import { computed, defineComponent, ref } from 'vue';
+import { common_headers, common_requests } from "../components/common_func_component.js";
 import VueElementLoading from "vue-element-loading";
 import Multiselect from 'vue-multiselect';
 import "vue-multiselect/dist/vue-multiselect.css";
 
 
-export default {
-    mixins: [common_func_component],
-    props: {
-        teams: Array,
-    },
+export default defineComponent({
+    props: { teams: Array },
     components: {
         VueElementLoading, Multiselect,
     },
-    data() {
-        return {
-            loading: false,
-            team: "",
-            new_team_name: "",
-        }
-    },
-    computed: {
-        now_team_name() {
+    setup(props) {
+        const loading = ref(false);
+        const team = ref("");
+        const new_team_name = ref("");
+
+        const now_team_name = computed(() => {
             var ret = "";
             var query_team_id = (new URL(document.location)).searchParams.get("team_id");
             if (!query_team_id) {
                 ret = sessionStorage.getItem("user_id");
             }
 
-            for (let team of this.teams) {
+            for (let team of props.teams) {
                 if (team.team_id == query_team_id) {
                     ret = team.team_name;
                 }
             }
 
             return ret;
-        }
-    },
-    methods: {
-        custom_label(team) {
+        })
+        const custom_label = (team) => {
             return team.team_name;
-        },
-        switch_team() {
-            if (this.team) {
-                this.loading = true;
-                location.href = `./tasks?team_id=${this.team.team_id}`;
+        }
+        const switch_team =()=> {
+            if (team.value) {
+                loading.value = true;
+                location.href = `./tasks?team_id=${team.value.team_id}`;
             }
-        },
-        async new_team() {
+        }
+        const new_team = async () => {
 
-            if (!this.new_team_name) {
+            if (!new_team_name.value) {
                 alert("Can not empty");
                 throw Error("Can not empty");
             }
 
-            this.loading = true;
+            loading.value = true;
 
-            var res = await this.common_requests(
+            var res = await common_requests(
                 `${process.env.VUE_APP_API_BASE}/teams`,
                 "POST",
-                this.common_headers(),
-                { team_name: this.new_team_name }
+                common_headers(),
+                { team_name: new_team_name.value }
             );
             var new_team_id = res.team_id;
 
-            this.loading = true;
+            loading.value = true;
             location.href = `./tasks?team_id=${new_team_id}`;
-        },
-        async delete_team() {
-            if (this.now_team_name == sessionStorage.getItem("user_id")) {
+        }
+
+        const delete_team = async () => {
+            if (now_team_name.value == sessionStorage.getItem("user_id")) {
                 alert("Can not delete this team");
                 throw Error("Can not delete this team");
             }
@@ -145,17 +140,20 @@ export default {
                 return null;
             }
 
-            this.loading = true;
-            await this.common_requests(
+            loading.value = true;
+            await common_requests(
                 `${process.env.VUE_APP_API_BASE}/teams`,
                 "DELETE",
-                this.common_headers(),
+                common_headers(),
             );
 
-            this.loading = true;
+            loading.value = true;
             location.href = `./tasks`;
-        },
-    }
-}
+        }
 
+        return {
+            loading, team, new_team_name, now_team_name, custom_label, switch_team, new_team, delete_team, 
+        }
+    },
+})
 </script>

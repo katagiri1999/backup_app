@@ -7,11 +7,18 @@
 </template>
 
 <script>
-export default {
-    methods: {
-        async reload() {
+import { defineComponent } from 'vue';
+
+
+export default defineComponent({
+    setup() {
+        const reload = async () => {
             location.reload();
         }
-    }
-}
+
+        return {
+            reload,
+        }
+    },
+})
 </script>

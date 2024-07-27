@@ -33,15 +33,17 @@
 </template>
 
 <script>
-import common_func_component from "../components/common_func_component.vue";
+import { defineComponent, ref } from 'vue';
 
-export default {
-    mixins: [common_func_component],
-    data() {
+
+export default defineComponent({
+    setup() {
+        const user_id = ref(sessionStorage.getItem("user_id"));
+        const api_base = ref(process.env.VUE_APP_API_BASE.split("/").slice(-1)[0]);
+
         return {
-            user_id: sessionStorage.getItem("user_id"),
-            api_base: process.env.VUE_APP_API_BASE.split("/").slice(-1)[0],
+            user_id, api_base,
         }
-    }
-}
+    },
+})
 </script>
