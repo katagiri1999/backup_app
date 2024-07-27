@@ -2,21 +2,23 @@
     <VueElementLoading :active="loading" spinner="bar-fade-scale" is-full-screen />
     <header_component />
 
-    <quill-editor v-model:value="text" :options="editorOption" />
+    <mavon-editor
+        language="en"
+        :toolbars="markdownOption"
+        v-model="text"
+        @save="save()"
+    />
 
     <div class="detail_btn">
         <button @click="save()" type="button" class="btn btn btn-outline-secondary">Save</button>
-        <button @click="back()" type="button" class="btn btn btn-outline-secondary">Back</button>
+        <button @click="back()" type="button" class="btn btn btn-outline-secondary">Back to List</button>
     </div>
 </template>
 
 <style>
-.ql-snow {
-    margin: 0.5%;
-}
-
 .detail_btn {
     margin-top: 3%;
+    margin-bottom: 3%;
 
     button {
         margin-left: 1%;
@@ -31,32 +33,36 @@ import { defineComponent, ref } from 'vue';
 import { common_headers, common_requests } from "../components/common_func_component.js";
 import header_component from "../components/header_component.vue";
 import VueElementLoading from "vue-element-loading";
-import { quillEditor } from 'vue3-quill';
 
 
 export default defineComponent({
     components: {
-       quillEditor, VueElementLoading, header_component
+        VueElementLoading, header_component
     },
     setup() {
         const loading = ref(false);
         const task_id = ref((new URL(document.location)).searchParams.get("task_id"));
         const team_id = ref((new URL(document.location)).searchParams.get("team_id"));
         const text = ref("");
-        const editorOption = ref({
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'code-block'],
-                    [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-                    [{ indent: '-1' }, { indent: '+1' }],
-                    [{ size: ['small', false, 'large', 'huge'] }],
-                    [{ color: [] }, { background: [] }],
-                    [{ align: [] }],
-                    ['link'],
-                    ['clean'],
-                ]
-            },
+        const markdownOption = ref({
+            bold: true,
+            italic: true,
+            header: true,
+            underline: true,
+            strikethrough: true,
+            mark: true,
+            superscript: true,
+            subscript: true,
+            quote: true,
+            ol: true,
+            ul: true,
+            link: true,
+            code: true,
+            table: true,
+            fullscreen: true,
+            subfield: true,
+            preview: true,
+            help: true,
         });
 
         const created = async () => {
@@ -94,7 +100,7 @@ export default defineComponent({
 
         created();
         return {
-            loading, task_id, team_id, text, editorOption, created, save, back
+            loading, task_id, team_id, text, markdownOption, created, save, back
         }
     },
 })
