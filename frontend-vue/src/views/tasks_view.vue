@@ -38,7 +38,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5> {{ modal_title }} </h5>
+                    <h5> {{ modal_value.modal_title }} </h5>
                     <button class="btn-close" data-bs-dismiss="modal" id="modal_close1"></button>
                 </div>
                 <div class="modal-body">
@@ -66,9 +66,9 @@
                         <label>Limit:</label>
                     </div>
                     <div class="error">
-                        <template v-if="modal_error">
+                        <template v-if="modal_value.modal_error">
                             <div class="alert alert-danger">
-                                <b>⚠{{ modal_error }}</b>
+                                <b>⚠{{ modal_value.modal_error }}</b>
                             </div>
                         </template>
                     </div>
@@ -145,6 +145,7 @@ svg:hover {
 
 <script>
 import { defineComponent, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { common_headers, common_requests } from "../components/common_func_component.js";
 import header_component from "../components/header_component.vue";
 import setting_component from "../components/setting_component.vue";
@@ -175,19 +176,20 @@ export default defineComponent({
         header_component, VueElementLoading, Vue3EasyDataTable, setting_component, reload_component, logout_component, teams_component
     },
     setup() {
+        const router = useRouter();
         const self_user_id = ref(sessionStorage.getItem("user_id"));
         const team_id = ref("");
         const loading = ref(false);
         const teams = ref([]);
         const modal_value = ref({
+            modal_title: "",
+            modal_error: "",
             task_id: "",
             task: "",
             user: "",
             status: "",
             limit: "",
         });
-        const modal_title = ref("");
-        const modal_error = ref("");
         const table_headers = ref([
             { text: "TASK_ID", value: "task_id" },
             { text: "TASK", value: "task", sortable: true },
@@ -228,10 +230,10 @@ export default defineComponent({
                 `${process.env.VUE_APP_API_BASE}/refresh`,
                 "POST",
                 common_headers(),
-                { team_id: team_id.value }
+                { team_id: team_id.value },
             );
 
-            history.replaceState("", "", `${new URL(document.location).pathname}?team_id=${team_id.value}`);
+            history.replaceState("", "", `${location.pathname}?team_id=${team_id.value}`);
 
             sessionStorage.setItem("token", res.id_token);
             sessionStorage.setItem("role", res.role);
@@ -241,10 +243,10 @@ export default defineComponent({
         }
 
         const open_modal = async (kind, item = {}) => {
-            modal_error.value = "";
+            modal_value.value.modal_error = "";
 
             if (kind == "post") {
-                modal_title.value = MODAL_TITLE_POST;
+                modal_value.value.modal_title = MODAL_TITLE_POST;
                 modal_value.value.task = "";
                 modal_value.value.user = "";
                 modal_value.value.status = "";
@@ -262,14 +264,14 @@ export default defineComponent({
                 modal_value.value.limit = item.limit;
 
                 if (kind == "put") {
-                    modal_title.value = MODAL_TITLE_PUT;
+                    modal_value.value.modal_title = MODAL_TITLE_PUT;
                     document.getElementById("modal_task").disabled = false;
                     document.getElementById("modal_user").disabled = false;
                     document.getElementById("modal_status").disabled = false;
                     document.getElementById("modal_limit").disabled = false;
 
                 } else if (kind == "delete") {
-                    modal_title.value = MODAL_TITLE_DELETE;
+                    modal_value.value.modal_title = MODAL_TITLE_DELETE;
                     document.getElementById("modal_task").disabled = true;
                     document.getElementById("modal_user").disabled = true;
                     document.getElementById("modal_status").disabled = true;
@@ -282,7 +284,7 @@ export default defineComponent({
             var res = await common_requests(
                 `${process.env.VUE_APP_API_BASE}/tasks`,
                 "GET",
-                common_headers()
+                common_headers(),
             );
 
             table_items.value = res.contents;
@@ -292,7 +294,7 @@ export default defineComponent({
             var res = await common_requests(
                 `${process.env.VUE_APP_API_BASE}/teams`,
                 "GET",
-                common_headers()
+                common_headers(),
             );
 
             teams.value = res.contents;
@@ -300,7 +302,7 @@ export default defineComponent({
 
         const call_contents_api = async () => {
             if (!modal_value.value.task || !modal_value.value.user || !modal_value.value.status || !modal_value.value.limit) {
-                modal_error.value = "Can not empty";
+                modal_value.value.modal_error = "Can not empty";
                 throw Error("Can not empty");
             }
 
@@ -308,26 +310,26 @@ export default defineComponent({
             var api_method = "";
             var params = {};
 
-            if (modal_title.value == MODAL_TITLE_POST) {
+            if (modal_value.value.modal_title == MODAL_TITLE_POST) {
                 api_method = "POST";
                 params = {
                     task: modal_value.value.task,
                     user_id: modal_value.value.user,
                     status: modal_value.value.status,
-                    limit: modal_value.value.limit
+                    limit: modal_value.value.limit,
                 }
 
-            } else if (modal_title.value == MODAL_TITLE_PUT) {
+            } else if (modal_value.value.modal_title == MODAL_TITLE_PUT) {
                 api_method = "PUT";
                 api_url = `${api_url}?task_id=${modal_value.value.task_id}`
                 params = {
                     task: modal_value.value.task,
                     user_id: modal_value.value.user,
                     status: modal_value.value.status,
-                    limit: modal_value.value.limit
+                    limit: modal_value.value.limit,
                 }
 
-            } else if (modal_title.value == MODAL_TITLE_DELETE) {
+            } else if (modal_value.value.modal_title == MODAL_TITLE_DELETE) {
                 api_method = "DELETE";
                 params = {
                     task_id: modal_value.value.task_id,
@@ -351,14 +353,13 @@ export default defineComponent({
             loading.value = true;
             var params = new URLSearchParams({
                 team_id: team_id.value,
-                task_id: item.task_id,
             });
-            location.href = "./tasks/detail" + "?" + params;
+            router.push(`/tasks/detail/${item.task_id}?${params}`);
         }
 
         created();
         return {
-            bodyItemClassNameFunction, headerItemClassNameFunction, self_user_id, team_id, loading, teams, modal_value, modal_title, modal_error, table_headers, table_items,
+            bodyItemClassNameFunction, headerItemClassNameFunction, self_user_id, team_id, loading, teams, modal_value, table_headers, table_items,
             open_modal, call_contents_api, to_detail,
         }
     },

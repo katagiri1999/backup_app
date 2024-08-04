@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
@@ -12,7 +12,7 @@ const routes = [
     component: () => import('@/views/tasks_view.vue')
   },
   {
-    path: '/tasks/detail',
+    path: '/tasks/detail/:task_id',
     name: 'detail',
     component: () => import('@/views/detail_view.vue')
   },

@@ -9,7 +9,7 @@
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasID" aria-labelledby="offcanvasExampleLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasExampleLabel">Teams</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" id="close_off"></button>
         </div>
         <div class="offcanvas-body">
             <span class="select_team">Select Team</span>
@@ -93,18 +93,27 @@ export default defineComponent({
 
             return ret;
         })
+
         const custom_label = (team) => {
             return team.team_name;
         }
-        const switch_team =()=> {
+
+        const close_offcanvas = async () => {
+            document.getElementById('close_off').click();
+        }
+
+        const switch_team = async () => {
             if (team.value) {
+                await close_offcanvas();
                 loading.value = true;
+
                 var params = new URLSearchParams({
                     team_id: team.value.team_id
                 });
                 location.href = "./tasks" + "?" + params;
             }
         }
+
         const new_team = async () => {
 
             if (!new_team_name.value) {
@@ -112,19 +121,20 @@ export default defineComponent({
                 throw Error("Can not empty");
             }
 
+            await close_offcanvas();
             loading.value = true;
 
             var res = await common_requests(
                 `${process.env.VUE_APP_API_BASE}/teams`,
                 "POST",
                 common_headers(),
-                { team_name: new_team_name.value }
+                { team_name: new_team_name.value },
             );
             var new_team_id = res.team_id;
 
             loading.value = true;
             var params = new URLSearchParams({
-                team_id: new_team_id
+                team_id: new_team_id,
             });
             location.href = "./tasks" + "?" + params;
         }
@@ -141,11 +151,11 @@ export default defineComponent({
             }
 
             var result = confirm("Are you sure you want to delete this Team?");
-            console.log(result);
             if (!result) {
                 return null;
             }
 
+            await close_offcanvas();
             loading.value = true;
             await common_requests(
                 `${process.env.VUE_APP_API_BASE}/teams`,
@@ -158,7 +168,7 @@ export default defineComponent({
         }
 
         return {
-            loading, team, new_team_name, now_team_name, custom_label, switch_team, new_team, delete_team, 
+            loading, team, new_team_name, now_team_name, custom_label, close_offcanvas, switch_team, new_team, delete_team, 
         }
     },
 })

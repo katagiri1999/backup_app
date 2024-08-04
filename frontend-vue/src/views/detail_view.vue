@@ -41,6 +41,7 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { common_headers, common_requests } from "../components/common_func_component.js";
 import header_component from "../components/header_component.vue";
 import VueElementLoading from "vue-element-loading";
@@ -51,8 +52,9 @@ export default defineComponent({
         VueElementLoading, header_component
     },
     setup() {
+        const router = useRouter();
         const loading = ref(false);
-        const task_id = ref((new URL(document.location)).searchParams.get("task_id"));
+        const task_id = ref(useRoute().params.task_id);
         const team_id = ref((new URL(document.location)).searchParams.get("team_id"));
         const text = ref("");
         const markdownOption = ref({
@@ -83,7 +85,7 @@ export default defineComponent({
                 `${process.env.VUE_APP_API_BASE}/tasks`,
                 "GET",
                 common_headers(),
-                { task_id: task_id.value }
+                { task_id: task_id.value },
             );
             text.value = res.contents[0].detail;
 
@@ -93,13 +95,12 @@ export default defineComponent({
         const save = async () => {
             loading.value = true;
 
-            var res = await common_requests(
+            await common_requests(
                 `${process.env.VUE_APP_API_BASE}/tasks?task_id=${task_id.value}`,
                 "PUT",
                 common_headers(),
-                { detail: text.value }
+                { detail: text.value },
             );
-            console.log(res);
 
             loading.value = false;
         }
@@ -107,9 +108,9 @@ export default defineComponent({
         const back = async () => {
             loading.value = true;
             var params = new URLSearchParams({
-                team_id: team_id.value
+                team_id: team_id.value,
             });
-            location.href = "../tasks" + "?" + params;
+            router.push(`/tasks?${params}`);
         }
 
         created();

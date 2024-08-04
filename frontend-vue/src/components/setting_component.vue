@@ -22,7 +22,7 @@
                             </tr>
                             <tr>
                                 <td scope="row">API Version:</td>
-                                <td>{{ api_base }}</td>
+                                <td>{{ api_ver }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -39,10 +39,10 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
     setup() {
         const user_id = ref(sessionStorage.getItem("user_id"));
-        const api_base = ref(process.env.VUE_APP_API_BASE.split("/").slice(-1)[0]);
+        const api_ver = ref(process.env.VUE_APP_API_BASE.split("/").slice(-1)[0]);
 
         return {
-            user_id, api_base,
+            user_id, api_ver,
         }
     },
 })

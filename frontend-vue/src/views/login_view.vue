@@ -74,7 +74,7 @@ export default defineComponent({
                 api_url,
                 "POST",
                 common_headers(),
-                { authorization_code: code, redirect_uri: process.env.VUE_APP_REDIRECT_URI }
+                { authorization_code: code, redirect_uri: process.env.VUE_APP_REDIRECT_URI },
             );
 
             sessionStorage.setItem("token", res.id_token);
