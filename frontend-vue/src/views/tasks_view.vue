@@ -12,7 +12,7 @@
         </svg>
         <reload_component />
         <logout_component />
-        <offcanvas_component :teams="teams" />
+        <teams_component :teams="teams" />
     </div>
 
     <Vue3EasyDataTable :headers="table_headers" :items="table_items" :rows-per-page="10" :table-height="420" theme-color="gray" buttons-pagination :body-item-class-name="bodyItemClassNameFunction" :header-item-class-name="headerItemClassNameFunction">
@@ -150,7 +150,7 @@ import header_component from "../components/header_component.vue";
 import setting_component from "../components/setting_component.vue";
 import reload_component from "../components/reload_component.vue";
 import logout_component from "../components/logout_component.vue";
-import offcanvas_component from "../components/offcanvas_component.vue";
+import teams_component from "../components/teams_component.vue";
 import VueElementLoading from "vue-element-loading";
 import Vue3EasyDataTable from 'vue3-easy-data-table';
 import 'vue3-easy-data-table/dist/style.css';
@@ -172,7 +172,7 @@ const headerItemClassNameFunction = (header) => {
 
 export default defineComponent({
     components: {
-        header_component, VueElementLoading, Vue3EasyDataTable, setting_component, reload_component, logout_component, offcanvas_component
+        header_component, VueElementLoading, Vue3EasyDataTable, setting_component, reload_component, logout_component, teams_component
     },
     setup() {
         const self_user_id = ref(sessionStorage.getItem("user_id"));

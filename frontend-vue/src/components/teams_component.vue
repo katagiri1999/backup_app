@@ -62,7 +62,7 @@
 
 <script>
 import { computed, defineComponent, ref } from 'vue';
-import { common_headers, common_requests } from "../components/common_func_component.js";
+import { common_headers, common_requests } from "./common_func_component.js";
 import VueElementLoading from "vue-element-loading";
 import Multiselect from 'vue-multiselect';
 import "vue-multiselect/dist/vue-multiselect.css";
