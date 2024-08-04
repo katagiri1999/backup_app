@@ -1,7 +1,7 @@
 import copy
 import uuid
 
-from chalicelib import func_users
+from chalicelib import func_tasks, func_users
 from chalicelib.common_modules import common_func
 from chalicelib.common_modules.const import const
 from chalicelib.common_modules.entity.team import Team
@@ -160,6 +160,9 @@ def delete(params: dict) -> dict:
             raise Exception(err_params)
 
         db_client.delete_item(Key={const.team_id: content.team_id})
+
+        func_users.delete_users(team_id)
+        func_tasks.delete_tasks(team_id)
 
         content.team_name = pre_content[0][const.team_name]
         return content.to_dict()

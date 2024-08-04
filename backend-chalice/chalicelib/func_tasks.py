@@ -211,3 +211,21 @@ def delete(params: dict) -> dict:
 
     except Exception as e:
         raise e
+
+
+def delete_tasks(team_id: str, db_client=None) -> None:
+    try:
+        if not db_client:
+            db_client = common_func.dynamodb_client(const.tasks_backapp)
+
+        params = {
+            const.team_id: team_id,
+            const.query_params: {},
+        }
+
+        tasks = get(params, db_client)[const.contents]
+        for i in tasks:
+            db_client.delete_item(Key={const.team_id: team_id, const.task_id: i[const.task_id]})
+
+    except Exception as e:
+        raise e

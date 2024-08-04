@@ -210,14 +210,14 @@ def delete(params: dict) -> dict:
         raise e
 
 
-def get_users(user_id: str, user_db_client=None) -> list[dict]:
+def get_users(user_id: str, db_client=None) -> list[dict]:
     try:
         Key = common_func.get_dynamodb_key()
 
-        if not user_db_client:
-            user_db_client = common_func.dynamodb_client(const.users_backapp)
+        if not db_client:
+            db_client = common_func.dynamodb_client(const.users_backapp)
 
-        result = user_db_client.query(
+        result = db_client.query(
             IndexName="user_id-index",
             KeyConditionExpression=Key(const.user_id).eq(user_id)
         )
@@ -225,6 +225,24 @@ def get_users(user_id: str, user_db_client=None) -> list[dict]:
         rows: list[dict] = result.get("Items", [])
         rows = [User(**i).to_dict() for i in rows]
         return rows
+
+    except Exception as e:
+        raise e
+
+
+def delete_users(team_id: str, db_client=None) -> None:
+    try:
+        if not db_client:
+            db_client = common_func.dynamodb_client(const.users_backapp)
+
+        params = {
+            const.team_id: team_id,
+            const.query_params: {},
+        }
+
+        users = get(params, db_client)[const.contents]
+        for i in users:
+            db_client.delete_item(Key={const.team_id: team_id, const.user_id: i[const.user_id]})
 
     except Exception as e:
         raise e
